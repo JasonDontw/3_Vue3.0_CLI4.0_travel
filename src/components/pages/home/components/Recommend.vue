@@ -28,9 +28,6 @@ export default {
   name: 'HomeRecommend',
   props: {
     list: Array
-  },
-  data () {
-    return {}
   }
 }
 </script>

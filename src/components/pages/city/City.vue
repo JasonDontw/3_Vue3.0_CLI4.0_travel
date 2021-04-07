@@ -3,11 +3,11 @@
     <CityHeader></CityHeader>
     <CitySearch :cities="cities"></CitySearch>
     <CityList
-      :cities="cities"
-      :hot="hotCities"
+      :cities="data.cities"
+      :hot="data.hotCities"
       :letter="letter"
     ></CityList>
-    <CityAlphabet :cities="cities" @change="handleLetterClick"></CityAlphabet>
+    <CityAlphabet :cities="data.cities" @change="handleLetterClick"></CityAlphabet>
   </div>
 </template>
 
@@ -17,6 +17,7 @@ import CityHeader from './components/Header'
 import CitySearch from './components/Search'
 import CityList from './components/List'
 import CityAlphabet from './components/Alphabet'
+import { onMounted, reactive, ref } from 'vue'
 
 export default {
   name: 'City',
@@ -26,33 +27,47 @@ export default {
     CityList,
     CityAlphabet
   },
-  data () {
-    return {
-      cities: {},
-      hotCities: [],
-      letter: ''
-    }
-  },
-  methods: {
-    getCityInfo () {
-      axios.get('/api/city.json')
-        .then(this.handleGetCityInfoSucc)
-    },
-    handleGetCityInfoSucc (res) {
-      res = res.data
-      if (res.ret && res.data) {
-        const data = res.data
-        this.cities = data.cities
-        this.hotCities = data.hotCities
-      }
-    },
-    handleLetterClick (letter) {
-      this.letter = letter
-    }
-  },
-  mounted () {
-    this.getCityInfo()
+  setup () {
+    const {letter, handleLetterClick} = useLetterLogic()
+    const {data} = useCityLogic()
+    
+    return {data, letter, handleLetterClick}
   }
+}
+
+function useCityLogic () {
+  const data = reactive({
+      cities: {},
+      hotCities: []
+    })
+
+  async function getCityInfo () {
+      let res = await axios.get('/api/city.json')
+      res = res.data
+
+      if (res.ret && res.data) {
+        const result = res.data
+        data.cities = result.cities
+        data.hotCities = result.hotCities
+      }
+    }
+
+  onMounted(() =>{
+      getCityInfo()
+  })
+
+  return {data}
+
+}
+
+function useLetterLogic () {
+    const letter = ref('')
+
+    function handleLetterClick(selected) {
+      letter.value = selected
+    }
+
+    return {letter, handleLetterClick, letter}
 }
 </script>
 
