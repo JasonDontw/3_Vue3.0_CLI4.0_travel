@@ -17,14 +17,6 @@ export default {
   name: 'DetailList',
   props: {
     list: Array
-  },
-  data () {
-    return {
-
-    }
-  },
-  methods: {
-
   }
 }
 </script>
